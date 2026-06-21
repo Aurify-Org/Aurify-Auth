@@ -219,7 +219,6 @@
       "severity": "MINOR",
       "component": "aurify-backend_Aurify-Auth:src/auth/auth/auth.service.ts",
       "project": "aurify-backend_Aurify-Auth",
-      "line": 275,
       "hash": "c9d79450fc77d1e59b8cdea7113f64a3",
       "textRange": {
         "startLine": 275,
@@ -228,7 +227,8 @@
         "endOffset": 7
       },
       "flows": [],
-      "status": "OPEN",
+      "resolution": "FIXED",
+      "status": "CLOSED",
       "message": "Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read.",
       "effort": "5min",
       "debt": "5min",
@@ -239,7 +239,8 @@
         "type-dependent"
       ],
       "creationDate": "2026-02-04T13:54:41+0000",
-      "updateDate": "2026-03-14T08:43:56+0000",
+      "updateDate": "2026-03-24T01:37:37+0000",
+      "closeDate": "2026-03-24T01:37:37+0000",
       "type": "CODE_SMELL",
       "organization": "aurify-backend",
       "cleanCodeAttribute": "CONVENTIONAL",
@@ -250,7 +251,7 @@
           "severity": "LOW"
         }
       ],
-      "issueStatus": "OPEN",
+      "issueStatus": "FIXED",
       "projectName": "Aurify-Auth",
       "internalTags": []
     },
@@ -269,7 +270,8 @@
         "endOffset": 37
       },
       "flows": [],
-      "status": "OPEN",
+      "resolution": "FALSE-POSITIVE",
+      "status": "RESOLVED",
       "message": "Review this potentially hard-coded password.",
       "effort": "30min",
       "debt": "30min",
@@ -278,7 +280,7 @@
         "cwe"
       ],
       "creationDate": "2026-02-04T13:54:41+0000",
-      "updateDate": "2026-03-23T04:38:17+0000",
+      "updateDate": "2026-03-24T01:25:48+0000",
       "type": "VULNERABILITY",
       "organization": "aurify-backend",
       "cleanCodeAttribute": "TRUSTWORTHY",
@@ -289,7 +291,7 @@
           "severity": "MEDIUM"
         }
       ],
-      "issueStatus": "OPEN",
+      "issueStatus": "FALSE_POSITIVE",
       "projectName": "Aurify-Auth",
       "internalTags": []
     },
@@ -308,7 +310,8 @@
         "endOffset": 31
       },
       "flows": [],
-      "status": "OPEN",
+      "resolution": "FALSE-POSITIVE",
+      "status": "RESOLVED",
       "message": "Review this potentially hard-coded password.",
       "effort": "30min",
       "debt": "30min",
@@ -317,7 +320,7 @@
         "cwe"
       ],
       "creationDate": "2026-02-04T13:54:41+0000",
-      "updateDate": "2026-03-23T04:38:17+0000",
+      "updateDate": "2026-03-24T01:25:48+0000",
       "type": "VULNERABILITY",
       "organization": "aurify-backend",
       "cleanCodeAttribute": "TRUSTWORTHY",
@@ -328,7 +331,7 @@
           "severity": "MEDIUM"
         }
       ],
-      "issueStatus": "OPEN",
+      "issueStatus": "FALSE_POSITIVE",
       "projectName": "Aurify-Auth",
       "internalTags": []
     },
@@ -1240,7 +1243,8 @@
         "endOffset": 11
       },
       "flows": [],
-      "status": "OPEN",
+      "resolution": "WONTFIX",
+      "status": "RESOLVED",
       "message": "Prefer top-level await over an async function `bootstrap` call.",
       "effort": "5min",
       "debt": "5min",
@@ -1251,7 +1255,7 @@
         "modernize"
       ],
       "creationDate": "2026-01-21T12:07:41+0000",
-      "updateDate": "2026-03-14T08:43:56+0000",
+      "updateDate": "2026-03-24T01:27:20+0000",
       "type": "CODE_SMELL",
       "organization": "aurify-backend",
       "cleanCodeAttribute": "CONVENTIONAL",
@@ -1262,7 +1266,7 @@
           "severity": "MEDIUM"
         }
       ],
-      "issueStatus": "OPEN",
+      "issueStatus": "ACCEPTED",
       "projectName": "Aurify-Auth",
       "internalTags": []
     }
