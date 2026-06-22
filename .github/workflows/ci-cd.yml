@@ -12,8 +12,12 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  PODMAN_SOCKET: unix:///run/user/1000/podman/podman.sock
 
 jobs:
+  # =============================================================
+  #  TEST
+  # =============================================================
   test:
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +42,9 @@ jobs:
       - name: Run E2E Tests
         run: npx jest --config ./test/jest-e2e.json --no-coverage --forceExit --detectOpenHandles
 
+  # =============================================================
+  #  BUILD & PUSH IMAGE
+  # =============================================================
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -57,7 +64,6 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Extract tag name
-        id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
@@ -78,6 +84,9 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }}
 
+  # =============================================================
+  #  GITHUB RELEASE
+  # =============================================================
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -93,6 +102,9 @@ jobs:
         with:
           generate_release_notes: true
 
+  # =============================================================
+  #  DEPLOY — STAGING
+  # =============================================================
   deploy-staging:
     needs: build
     runs-on: ubuntu-latest
@@ -109,7 +121,6 @@ jobs:
           tags: tag:ci
 
       - name: Extract tag name
-        id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
@@ -118,6 +129,8 @@ jobs:
       - name: Deploy to Staging Server
         run: |
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
+            set -e
+            export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
             export STG_REFINA_AUTH_IMAGE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/refina-auth &&
             export STG_REFINA_AUTH_IMAGE_TAG=${{ env.TAG_NAME }} &&
 
@@ -125,9 +138,14 @@ jobs:
 
             docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker compose -f docker-compose.yml pull stg-refina-auth &&
-            docker compose -f docker-compose.yml up -d stg-refina-auth
+            docker compose -f docker-compose.yml up -d stg-refina-auth &&
+
+            echo 'Deploy staging selesai: stg-refina-auth @ ${{ env.TAG_NAME }}'
           "
 
+  # =============================================================
+  #  DEPLOY — PRODUCTION
+  # =============================================================
   deploy-production:
     needs: build
     runs-on: ubuntu-latest
@@ -144,7 +162,6 @@ jobs:
           tags: tag:ci
 
       - name: Extract tag name
-        id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
@@ -153,6 +170,8 @@ jobs:
       - name: Deploy to Production Server
         run: |
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
+            set -e
+            export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
             export PROD_REFINA_AUTH_IMAGE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/refina-auth &&
             export PROD_REFINA_AUTH_IMAGE_TAG=${{ env.TAG_NAME }} &&
 
@@ -160,9 +179,14 @@ jobs:
 
             docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker compose -f docker-compose.yml pull prod-refina-auth &&
-            docker compose -f docker-compose.yml up -d prod-refina-auth
+            docker compose -f docker-compose.yml up -d prod-refina-auth &&
+
+            echo 'Deploy production selesai: prod-refina-auth @ ${{ env.TAG_NAME }}'
           "
 
+  # =============================================================
+  #  MIGRATE — STAGING
+  # =============================================================
   migrate-staging:
     needs: deploy-staging
     runs-on: ubuntu-latest
@@ -179,7 +203,6 @@ jobs:
           tags: tag:ci
 
       - name: Extract tag name
-        id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
@@ -188,6 +211,8 @@ jobs:
       - name: Run Migration on Staging
         run: |
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
+            set -e
+            export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
             export APP_IMAGE_STG_MIGRATE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate &&
             export APP_IMAGE_STG_MIGRATE_TAG=${{ env.TAG_NAME }} &&
 
@@ -195,13 +220,16 @@ jobs:
 
             docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
-            
-            echo 'Running database migration for staging environment...' &&
-            docker compose -f docker-compose.yml run --rm stg-refina-auth-migrate
-            
-            echo 'Migration completed for staging environment'
+
+            echo 'Running database migration for staging...' &&
+            docker compose -f docker-compose.yml run --rm stg-refina-auth-migrate &&
+
+            echo 'Migration staging selesai.'
           "
 
+  # =============================================================
+  #  MIGRATE — PRODUCTION
+  # =============================================================
   migrate-production:
     needs: deploy-production
     runs-on: ubuntu-latest
@@ -218,7 +246,6 @@ jobs:
           tags: tag:ci
 
       - name: Extract tag name
-        id: get_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
@@ -227,6 +254,8 @@ jobs:
       - name: Run Migration on Production
         run: |
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
+            set -e
+            export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
             export APP_IMAGE_PROD_MIGRATE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate &&
             export APP_IMAGE_PROD_MIGRATE_TAG=${{ env.TAG_NAME }} &&
 
@@ -234,9 +263,9 @@ jobs:
 
             docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
-            
-            echo 'Running database migration for production environment...' &&
-            docker compose -f docker-compose.yml run --rm prod-refina-auth-migrate
 
-            echo 'Migration completed for production environment'
+            echo 'Running database migration for production...' &&
+            docker compose -f docker-compose.yml run --rm prod-refina-auth-migrate &&
+
+            echo 'Migration production selesai.'
           "
