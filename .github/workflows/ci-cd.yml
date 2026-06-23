@@ -136,7 +136,7 @@ jobs:
 
             cd ~/web/staging/refinamicroservices &&
 
-            docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
+            podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker compose -f docker-compose.yml pull stg-refina-auth &&
             docker compose -f docker-compose.yml up -d stg-refina-auth &&
 
@@ -177,7 +177,7 @@ jobs:
 
             cd ~/web/production/refinamicroservices &&
 
-            docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
+            podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker compose -f docker-compose.yml pull prod-refina-auth &&
             docker compose -f docker-compose.yml up -d prod-refina-auth &&
 
@@ -218,7 +218,7 @@ jobs:
 
             cd ~/web/staging/refinamicroservices &&
 
-            docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
+            podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
 
             echo 'Running database migration for staging...' &&
@@ -261,7 +261,7 @@ jobs:
 
             cd ~/web/production/refinamicroservices &&
 
-            docker login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
+            podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
             docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
 
             echo 'Running database migration for production...' &&
