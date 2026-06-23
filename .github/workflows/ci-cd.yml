@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*.*'
+      - 'v[0-9][0-9][0-9][0-9].[0-9]+'
   pull_request:
     branches:
       - main
@@ -71,14 +71,14 @@ jobs:
         run: echo "REPO_LOWERCASE=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       - name: Build and push refina-auth image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/refina-auth:${{ env.TAG_NAME }}
 
       - name: Build and push migrate image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.migrate
@@ -139,7 +139,7 @@ jobs:
             cd ~/web/staging/refinamicroservices &&
 
             podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
-            docker compose -f docker-compose.yml pull stg-refina-auth &&
+            podman pull \$STG_REFINA_AUTH_IMAGE:\$STG_REFINA_AUTH_IMAGE_TAG &&
             docker compose -f docker-compose.yml up -d stg-refina-auth &&
 
             echo 'Deploy staging selesai: stg-refina-auth @ ${{ env.TAG_NAME }}'
@@ -181,7 +181,7 @@ jobs:
             cd ~/web/production/refinamicroservices &&
 
             podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
-            docker compose -f docker-compose.yml pull prod-refina-auth &&
+            podman pull \$PROD_REFINA_AUTH_IMAGE:\$PROD_REFINA_AUTH_IMAGE_TAG &&
             docker compose -f docker-compose.yml up -d prod-refina-auth &&
 
             echo 'Deploy production selesai: prod-refina-auth @ ${{ env.TAG_NAME }}'
@@ -223,9 +223,9 @@ jobs:
             cd ~/web/staging/refinamicroservices &&
 
             podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
-            docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
-
-            echo 'Running database migration for staging...' &&
+            podman pull \$APP_IMAGE_STG_MIGRATE:\$APP_IMAGE_STG_MIGRATE_TAG &&
+            
+            echo 'Running database migration for staging environment...' &&
             docker compose -f docker-compose.yml run --rm stg-refina-auth-migrate &&
 
             echo 'Migration staging selesai.'
@@ -267,9 +267,9 @@ jobs:
             cd ~/web/production/refinamicroservices &&
 
             podman login -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }} ${{ env.REGISTRY }} &&
-            docker pull ${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate:${{ env.TAG_NAME }} &&
-
-            echo 'Running database migration for production...' &&
+            podman pull \$APP_IMAGE_PROD_MIGRATE:\$APP_IMAGE_PROD_MIGRATE_TAG &&
+            
+            echo 'Running database migration for production environment...' &&
             docker compose -f docker-compose.yml run --rm prod-refina-auth-migrate &&
 
             echo 'Migration production selesai.'
