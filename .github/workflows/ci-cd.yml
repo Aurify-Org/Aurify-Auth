@@ -13,6 +13,7 @@ on:
 env:
   REGISTRY: ghcr.io
   PODMAN_SOCKET: unix:///run/user/1000/podman/podman.sock
+  REGISTRY_AUTH_FILE: /home/mifta/.config/containers/auth.json
 
 jobs:
   # =============================================================
@@ -131,6 +132,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
             set -e
             export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
+            export REGISTRY_AUTH_FILE=${{ env.REGISTRY_AUTH_FILE }} &&
             export STG_REFINA_AUTH_IMAGE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/refina-auth &&
             export STG_REFINA_AUTH_IMAGE_TAG=${{ env.TAG_NAME }} &&
 
@@ -172,6 +174,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
             set -e
             export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
+            export REGISTRY_AUTH_FILE=${{ env.REGISTRY_AUTH_FILE }} &&
             export PROD_REFINA_AUTH_IMAGE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/refina-auth &&
             export PROD_REFINA_AUTH_IMAGE_TAG=${{ env.TAG_NAME }} &&
 
@@ -213,6 +216,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
             set -e
             export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
+            export REGISTRY_AUTH_FILE=${{ env.REGISTRY_AUTH_FILE }} &&
             export APP_IMAGE_STG_MIGRATE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate &&
             export APP_IMAGE_STG_MIGRATE_TAG=${{ env.TAG_NAME }} &&
 
@@ -256,6 +260,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no mifta@homeserver "
             set -e
             export DOCKER_HOST=${{ env.PODMAN_SOCKET }} &&
+            export REGISTRY_AUTH_FILE=${{ env.REGISTRY_AUTH_FILE }} &&
             export APP_IMAGE_PROD_MIGRATE=${{ env.REGISTRY }}/${{ env.REPO_LOWERCASE }}/migrate &&
             export APP_IMAGE_PROD_MIGRATE_TAG=${{ env.TAG_NAME }} &&
 
